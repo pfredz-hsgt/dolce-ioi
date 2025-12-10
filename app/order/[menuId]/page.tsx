@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useMemo, useCallback, useRef } from 'react'
 import { useRouter, useParams } from 'next/navigation'
-import { ShoppingCart, MessageSquare, Lock, Truck, MapPin } from 'lucide-react'
+import { ShoppingCart, MessageSquare, Lock, Truck, MapPin, Phone } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import QuantityPicker from '@/components/QuantityPicker'
 import {
@@ -32,6 +32,7 @@ export default function OrderPage() {
   const customerNameRef = useRef<any>(null)
   const remarksRef = useRef<any>(null)
   const addressRef = useRef<any>(null)
+  const phoneRef = useRef<any>(null)
 
   const [quantities, setQuantities] = useState<Record<string, number>>({})
   const [isDelivery, setIsDelivery] = useState(false) // New: COD State
@@ -140,6 +141,7 @@ export default function OrderPage() {
     const customerName = customerNameRef.current?.nativeElement?.value || ''
     const remarks = remarksRef.current?.nativeElement?.value || ''
     const address = addressRef.current?.nativeElement?.value || ''
+    const phone = phoneRef.current?.nativeElement?.value || ''
 
     // Validation
     if (!customerName.trim()) {
@@ -147,9 +149,15 @@ export default function OrderPage() {
       return
     }
 
-    if (isDelivery && !address.trim()) {
-      Toast.show({ icon: 'fail', content: 'Please enter delivery address' })
-      return
+    if (isDelivery) {
+      if (!address.trim()) {
+        Toast.show({ icon: 'fail', content: 'Please enter delivery address' })
+        return
+      }
+      if (!phone.trim()) {
+        Toast.show({ icon: 'fail', content: 'Please enter phone number' })
+        return
+      }
     }
 
     const hasItems = Object.values(quantities).some(qty => qty > 0)
@@ -173,6 +181,7 @@ export default function OrderPage() {
           // New Fields
           is_delivery: isDelivery,
           delivery_address: isDelivery ? address.trim() : null,
+          phone_number: isDelivery ? phone.trim() : null,
           total_amount: grandTotal
         })
         .select()
@@ -210,6 +219,7 @@ export default function OrderPage() {
       customerNameRef.current?.clear?.()
       remarksRef.current?.clear?.()
       addressRef.current?.clear?.()
+      phoneRef.current?.clear?.()
 
       setIsDelivery(false)
 
@@ -392,13 +402,32 @@ export default function OrderPage() {
             {/* Address Input (Conditional) */}
             {isDelivery && (
               <div style={{ marginTop: '16px', animation: 'fadeIn 0.3s ease' }}>
+                <div style={{ marginBottom: '12px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '8px', color: '#666', fontSize: '14px' }}>
+                    <Phone size={16} />
+                    <span>Nombor Telefon:</span>
+                  </div>
+                  <Input
+                    ref={phoneRef}
+                    placeholder="0123456789"
+                    type='tel'
+                    style={{
+                      border: '1px solid #ccc',
+                      borderRadius: '8px',
+                      padding: '8px',
+                      fontSize: '14px',
+                      background: '#fffbe6'
+                    }}
+                  />
+                </div>
+
                 <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '8px', color: '#666', fontSize: '14px' }}>
                   <MapPin size={16} />
                   <span>Alamat Penghantaran:</span>
                 </div>
                 <TextArea
                   ref={addressRef}
-                  placeholder="Sila masukkan alamat anda..."
+                  placeholder="Sila masukkan alamat penghantaran anda.."
                   autoSize={{ minRows: 2, maxRows: 4 }}
                   style={{
                     border: '1px solid #ccc',

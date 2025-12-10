@@ -13,7 +13,10 @@ CREATE TABLE menus (
 CREATE TABLE menu_items (
   id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
   menu_id UUID REFERENCES menus(id) ON DELETE CASCADE,
-  item_name TEXT NOT NULL
+  item_name TEXT NOT NULL,
+  price NUMERIC(10, 2) DEFAULT 0.00,
+  category TEXT DEFAULT 'General Menu',
+  created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
 -- Orders table
@@ -23,6 +26,10 @@ CREATE TABLE orders (
   customer_name TEXT NOT NULL,
   remarks TEXT,
   is_paid BOOLEAN DEFAULT FALSE,
+  is_delivery BOOLEAN DEFAULT FALSE,
+  delivery_address TEXT,
+  phone_number TEXT,
+  total_amount NUMERIC(10, 2) DEFAULT 0.00,
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
@@ -31,7 +38,8 @@ CREATE TABLE order_details (
   id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
   order_id UUID REFERENCES orders(id) ON DELETE CASCADE,
   item_name TEXT NOT NULL,
-  quantity INTEGER NOT NULL DEFAULT 1
+  quantity INTEGER NOT NULL DEFAULT 1,
+  price NUMERIC(10, 2) DEFAULT 0.00
 );
 
 -- Indexes for performance

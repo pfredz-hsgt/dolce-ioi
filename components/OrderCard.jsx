@@ -64,7 +64,14 @@ export default function OrderCard({ order, onDelete, onTogglePaid }) {
           gap: '6px'
         }}>
           <MapPin size={16} style={{ flexShrink: 0, marginTop: '2px' }} />
-          <span>{order.delivery_address}</span>
+          <div style={{ display: 'flex', flexDirection: 'column' }}>
+            <span>{order.delivery_address}</span>
+            {order.phone_number && (
+              <span style={{ fontSize: '12px', color: '#777', marginTop: '2px' }}>
+                📞 {order.phone_number}
+              </span>
+            )}
+          </div>
         </div>
       )}
 
